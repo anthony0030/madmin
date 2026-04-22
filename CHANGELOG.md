@@ -1,5 +1,16 @@
 ### Unreleased
 
+- Fix `:new` and `:edit` options not beeing set correctly when `form` option was explicitly set (Fixes `Disapiaring Form Bug`)
+- Add documentation to `README.me` and `resources.md`
+
+`Disapiaring Form Bug` recreation
+1. Have a model with validations
+2. Have a resource for said model where every attribute has a `form` value set to `true` or `false`
+3. On madmin create or edit a model but make a form validation error
+4. You get a page that has the errors, no form, and the buttons underneath
+
+This also fixes a bug caused by explicitly setting `form: true`
+
 ### 2.3.2
 
 - Support plural module names #313

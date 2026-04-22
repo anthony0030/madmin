@@ -110,6 +110,7 @@ class BookResource < Madmin::Resource
   attribute :author
   attribute :genre
   attribute :pages, show: false
+  attribute :key, index: true, new: true, edit: false, label: "Custom Key", description: "Can't be edited."
 end
 ```
 

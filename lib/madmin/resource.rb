@@ -61,8 +61,8 @@ module Madmin
         end
 
         # New/create and edit/update need to match
-        config.create = config[:create] if config.has_key?(:new)
-        config.update = config[:update] if config.has_key?(:edit)
+        config.create = config[:new] if config.has_key?(:new) && !config[:new].nil?
+        config.update = config[:edit] if config.has_key?(:edit) && !config[:edit].nil?
 
         attributes[name] = Attribute.new(
           name: name,
