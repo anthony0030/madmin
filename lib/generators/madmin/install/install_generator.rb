@@ -30,7 +30,7 @@ module Madmin
 
       def generate_resources
         generateable_models.each do |model|
-          if model.table_exists?
+          if Madmin.active_hash_model?(model) || model.table_exists?
             call_generator "madmin:resource", model.to_s
           else
             puts "Skipping #{model} because database table does not exist"
@@ -42,13 +42,21 @@ module Madmin
 
       # Skip Abstract classes, ActiveRecord::Base, and auto-generated HABTM models
       def generateable_models
-        active_record_models.reject do |model|
-          model.abstract_class? || model == ::ActiveRecord::Base || model.name.start_with?("HABTM_")
+        (active_record_models + active_hash_models).reject do |model|
+          (model.respond_to?(:abstract_class?) && model.abstract_class?) ||
+            model == ::ActiveRecord::Base ||
+            (defined?(::ActiveHash::Base) && model == ::ActiveHash::Base) ||
+            model.name.nil? || model.name.start_with?("HABTM_")
         end
       end
 
       def active_record_models
-        ObjectSpace.each_object(::ActiveRecord::Base.singleton_class)
+        ObjectSpace.each_object(::ActiveRecord::Base.singleton_class).to_a
+      end
+
+      def active_hash_models
+        return [] unless defined?(::ActiveHash::Base)
+        ObjectSpace.each_object(::ActiveHash::Base.singleton_class).to_a
       end
     end
   end

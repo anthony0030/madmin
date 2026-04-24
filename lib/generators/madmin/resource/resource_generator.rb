@@ -64,9 +64,14 @@ module Madmin
           {form: false}
 
         # Attributes without a database column
-        elsif !model.column_names.include?(name) && !store_accessors.map(&:to_s).include?(name)
+        elsif !model_column_names.include?(name) && !store_accessors.map(&:to_s).include?(name)
           {index: false}
         end
+      end
+
+      def model_column_names
+        return ([model.primary_key.to_s] + model.field_names.map(&:to_s)).uniq if Madmin.active_hash_model?(model)
+        model.column_names
       end
     end
   end

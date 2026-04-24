@@ -96,10 +96,14 @@ module Madmin
       end
 
       def show_path(record)
+        return "#{index_path}/#{record.id}" if Madmin.active_hash_model?(model)
+
         url_helpers.polymorphic_path([:madmin, route_namespace, becomes(record)])
       end
 
       def edit_path(record)
+        return "#{index_path}/#{record.id}/edit" if Madmin.active_hash_model?(model)
+
         url_helpers.polymorphic_path([:madmin, route_namespace, becomes(record)], action: :edit)
       end
 
@@ -124,6 +128,16 @@ module Madmin
       end
 
       def sortable_columns
+        model_column_names
+      end
+
+      def readonly?
+        Madmin.active_hash_model?(model)
+      end
+
+      def model_column_names
+        return ([model.primary_key.to_s] + model.field_names.map(&:to_s)).uniq if Madmin.active_hash_model?(model)
+
         model.column_names
       end
 
@@ -202,6 +216,7 @@ module Madmin
 
       def infer_type(name)
         name_string = name.to_s
+        return infer_type_for_active_hash(name, name_string) if Madmin.active_hash_model?(model)
 
         if model.attribute_types.include?(name_string)
           column_type = model.attribute_types[name_string]
@@ -229,6 +244,12 @@ module Madmin
         end
       end
 
+      def infer_type_for_active_hash(name, name_string)
+        return :string if model.respond_to?(:field_names) && model.field_names.map(&:to_s).include?(name_string)
+        return type_for_association(model.reflect_on_association(name)) if model.respond_to?(:reflect_on_association) && model.reflect_on_association(name)
+        :string
+      end
+
       def type_for_association(association)
         if association.has_one?
           :has_one
@@ -246,6 +267,8 @@ module Madmin
       end
 
       def model_store_accessors
+        return [] unless model.respond_to?(:stored_attributes)
+
         store_accessors = model.stored_attributes.values
         store_accessors.flatten
       end

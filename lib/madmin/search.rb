@@ -13,12 +13,21 @@ module Madmin
     def run
       if query.blank?
         @scoped_resource.all
+      elsif Madmin.active_hash_model?(@resource.model)
+        active_hash_search(@scoped_resource)
       else
         search_results(@scoped_resource)
       end
     end
 
     private
+
+    def active_hash_search(resources)
+      pattern = Regexp.new(Regexp.escape(@query), Regexp::IGNORECASE)
+      attrs = search_attributes.flat_map { |a| searchable_fields(a) }
+      matched = resources.all.select { |r| attrs.any? { |a| r.respond_to?(a) && r.public_send(a).to_s.match?(pattern) } }
+      resources.respond_to?(:where) ? resources.where(id: matched.map(&:id)) : matched
+    end
 
     def search_results(resources)
       resources.where(query_template, *query_values)
