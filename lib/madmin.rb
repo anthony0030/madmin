@@ -49,6 +49,10 @@ module Madmin
   end
 
   class << self
+    def active_hash_model?(model)
+      defined?(::ActiveHash::Base) && model.is_a?(Class) && model < ::ActiveHash::Base
+    end
+
     # Returns a Madmin::Resource class for the given object
     def resource_for(object)
       if (resource_name = resource_name_for(object)) && Object.const_defined?(resource_name)
@@ -78,6 +82,8 @@ module Madmin
     end
 
     def sti_resource_name_for(object)
+      return unless object.class.respond_to?(:inheritance_column) && object.class.respond_to?(:column_names)
+
       if (column = object.class.inheritance_column) && object.class.column_names.include?(column)
         "#{object.class.superclass.base_class.name}Resource"
       end

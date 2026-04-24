@@ -159,6 +159,42 @@ class PostResource < Madmin::Resource
 end
 ```
 
+## ActiveHash Support
+
+Madmin supports [ActiveHash](https://github.com/active-hash/active_hash) models as read-only resources. ActiveHash models are automatically detected and displayed in the admin with search, sorting, and pagination — no database table required.
+
+```ruby
+# app/models/country.rb
+class Country < ActiveHash::Base
+  fields :name, :code
+
+  self.data = [
+    { id: 1, name: "United States", code: "US" },
+    { id: 2, name: "Canada", code: "CA" }
+  ]
+end
+```
+
+Generate the resource as usual:
+
+```bash
+rails g madmin:resource Country
+```
+
+ActiveHash resources are automatically read-only: the New, Edit, and Delete actions are hidden from the UI and blocked in the controller. To override this, define `readonly?` on your resource:
+
+```ruby
+class CountryResource < Madmin::Resource
+  attribute :id, form: false
+  attribute :name
+  attribute :code
+
+  def self.readonly?
+    false
+  end
+end
+```
+
 ## Authentication
 
 You can use a couple of strategies to authenticate users who are trying to

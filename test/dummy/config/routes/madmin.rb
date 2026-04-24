@@ -11,6 +11,7 @@ namespace :madmin do
   resources :teams
   resources :users
   resources :comments
+  resources :countries if defined?(ActiveHash::Base)
   resources :posts do
     member do
       patch :draft

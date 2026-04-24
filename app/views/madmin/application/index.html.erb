@@ -15,8 +15,10 @@
       </svg>
       <% end if params[:q].present? %>
 
-    <%= link_to resource.new_path, class: "btn btn-secondary" do %>
-      New <%= tag.span resource.friendly_name, class: "hidden md:inline-block" %>
+    <% unless resource.readonly? %>
+      <%= link_to resource.new_path, class: "btn btn-secondary" do %>
+        New <%= tag.span resource.friendly_name, class: "hidden md:inline-block" %>
+      <% end %>
     <% end %>
   </div>
 </header>
@@ -56,7 +58,7 @@
 
           <td>
             <%= link_to "View", resource.show_path(record) %>
-            <%= link_to "Edit", resource.edit_path(record) %>
+            <%= link_to "Edit", resource.edit_path(record) unless resource.readonly? %>
           </td>
         </tr>
       <% end %>
